@@ -8,7 +8,7 @@
 custom_solver_bias = 0.0
 extents = Vector2( 6.71988, 15.8216 )
 
-[sub_resource type="Animation" id=3]
+[sub_resource type="Animation" id=2]
 
 resource_name = "idle"
 length = 1.6
@@ -27,9 +27,8 @@ tracks/0/keys = {
 "values": [ 8, 9 ]
 }
 
-[sub_resource type="Animation" id=2]
+[sub_resource type="Animation" id=3]
 
-resource_name = "run"
 length = 0.8
 loop = true
 step = 0.1
@@ -81,8 +80,8 @@ autoplay = ""
 playback_process_mode = 1
 playback_default_blend_time = 0.0
 playback_speed = 1.0
-anims/idle = SubResource( 3 )
-anims/run = SubResource( 2 )
+anims/idle = SubResource( 2 )
+anims/run = SubResource( 3 )
 blend_times = [  ]
 
 

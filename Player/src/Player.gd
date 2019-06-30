@@ -21,22 +21,21 @@ const GRAVITY = 200.0
 var velocity = Vector2()
 var dx = Vector2(0, 0) # x axis velocity; Apply this to the transform
 var dy = Vector2(0, 0) # Y-axis velocity; apply this via physics move_and_collide
-var grounded
 
 # Track player states in an enum below
 # They are powers of two so that we can use them as bit masks on the
 # currState variable and do bitwise operations.
 enum StateMasks {
-	GROUNDED 
-	JUMPING,
-	MOVE_LEFT,
-	MOVE_RIGHT,
-	FALLING,
-	IDLE,
-	DEAD
+	GROUNDED = 1 
+	JUMPING = 2,
+	MOVE_LEFT = 4,
+	MOVE_RIGHT = 8,
+	FALLING = 16,
+	IDLE = 32,
+	DEAD = 64
 }
 
-var currState = IDLE # 0010 0000 
+var currState = IDLE # 0010 0000 or 0x32
 
 func _play_anim(anim):
 	if $"Sprite/AnimationPlayer".is_playing() && $"Sprite/AnimationPlayer".get_current_animation() == anim:
@@ -47,11 +46,15 @@ func _play_anim(anim):
 func _check_state( stateMask ):
 	return (stateMask & (self.currState)) == stateMask
 
+func _set_state( stateMask ):
+	return self.currState | stateMask
+
+func _unset_state( stateMask ):
+	return self.currState & (~(stateMask))
+
 func _handle_state():
 	# check the current state and trigger the appropriate signal
-	# additionally trigger the correct animation
 	var anim 
-	print(_check_state(JUMPING))
 	if _check_state(JUMPING):
 		self.emit_signal("jump")
 	if _check_state(MOVE_LEFT):
@@ -80,22 +83,24 @@ func _ready():
 
 func _player_input():
 	if Input.is_action_pressed("ui_left"):
-		self.currState = self.currState | MOVE_LEFT
+		# set the moving left bit with the MOVE_LEFT bit mask
+		self.currState = _set_state(MOVE_LEFT & ~IDLE)
 	elif Input.is_action_just_released("ui_left"):
 		# Unset the left movement bit
-		self.currState = self.currState & MOVE_LEFT
+		self.currState = _unset_state(MOVE_LEFT)
 
 	if Input.is_action_pressed("ui_right"):
-		self.currState = self.currState | MOVE_RIGHT
+		self.currState = _set_state(MOVE_RIGHT)
 	elif Input.is_action_just_released("ui_right"):
 		# Unset the right movement bit
-		self.currState = self.currState & MOVE_RIGHT
+		self.currState = _unset_state(MOVE_RIGHT)
 
 	if Input.is_action_pressed( "ui_accept" ):
-		if self.grounded:
-			self.currState = self.currState | JUMPING
-	else:
-		self.currState = self.currState | IDLE
+		if _check_state( GROUNDED ):
+			self.currState = _set_state( JUMPING )
+	elif Input.is_action_just_released( "ui_accept" ):
+		self.currState = _unset_state( JUMPING )
+
 
 func _physics_process(delta):
 
@@ -120,8 +125,10 @@ func _physics_process(delta):
 	# 	# jomp
 	# 	# we pretty much just need to overcome gravity.
 	# 	self.velocity.y 
-	self.grounded = is_on_floor()
-	print(self.grounded)
+	if is_on_floor():
+		self.currState = _set_state( GROUNDED )
+	else:
+		self.currState = _unset_state( GROUNDED )
 
 	
 	# We don't need to multiply velocity by delta because MoveAndSlide already takes delta time into account.
@@ -129,26 +136,27 @@ func _physics_process(delta):
 	# The second parameter of move_and_slide is the normal pointing up.
 	# In the case of a 2d platformer, in Godot upward is negative y, which translates to -1 as a normal.
 	move_and_slide(velocity, Vector2(0, -1))
-	if not self.grounded:
-		velocity.y += delta * GRAVITY
+	if not _check_state( GROUNDED ):
+		velocity.y += GRAVITY
 	else:
 		velocity.y += 0
 	
 	var motion = velocity * delta
-	move_and_collide(motion)
+	# move_and_collide(motion)
 
 func _process(delta):
 	# Called every frame. Delta is time since last frame.
 	# Update game logic here.
 	_player_input()
 	_handle_state()
+	print(self.currState)
 
 func _on_Player_jump():
-	print("JUMPING")
+	pass
 
 func _on_Player_move( dir ):
-	# hacky flip the sprite and play the animation backwards
-	if dir  == MOVE_LEFT:
+	# flip the sprite.
+	if dir == MOVE_LEFT:
 		$"Sprite".flip_h = true
 	elif dir == MOVE_RIGHT:
 		$"Sprite".flip_h = false
