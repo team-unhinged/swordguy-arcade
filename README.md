@@ -1,2 +1,2 @@
-# SwordGuy Arcade
+# ⚔️ SwordGuy Arcade 🕹️
 Godot arcade prototype for SwordGuy.
