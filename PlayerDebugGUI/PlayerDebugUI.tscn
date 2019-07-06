@@ -1,0 +1,44 @@
+[gd_scene format=2]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="GUI" type="MarginContainer" parent="."]
+margin_right = 165.0
+margin_bottom = 136.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GUI"]
+margin_right = 165.0
+margin_bottom = 136.0
+
+[node name="StateInfo" type="VBoxContainer" parent="GUI/HBoxContainer"]
+margin_right = 51.0
+margin_bottom = 136.0
+
+[node name="StateLabel" type="Label" parent="GUI/HBoxContainer/StateInfo"]
+margin_right = 51.0
+margin_bottom = 14.0
+text = "State:"
+
+[node name="StateValue" type="Label" parent="GUI/HBoxContainer/StateInfo"]
+margin_top = 18.0
+margin_right = 51.0
+margin_bottom = 32.0
+text = "Jumping"
+
+[node name="VelocityInfo" type="VBoxContainer" parent="GUI/HBoxContainer"]
+margin_left = 55.0
+margin_right = 128.0
+margin_bottom = 136.0
+
+[node name="VelocityLabel" type="Label" parent="GUI/HBoxContainer/VelocityInfo"]
+margin_right = 73.0
+margin_bottom = 14.0
+text = "Velocity:"
+
+[node name="VelocityValue" type="Label" parent="GUI/HBoxContainer/VelocityInfo"]
+margin_top = 18.0
+margin_right = 73.0
+margin_bottom = 32.0
+text = "<10.0,-5.3>"
